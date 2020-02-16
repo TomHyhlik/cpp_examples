@@ -12,11 +12,9 @@ int main()
 
 
     auto start = std::chrono::high_resolution_clock::now();
-
     /* The std::this_thread::sleep_for() supports seconds only. 
      *  Therefore alternative is the usleep() from <unistd.h>
-     */
-    
+     */ 
     usleep(1000000);
 
     auto end = std::chrono::high_resolution_clock::now();
