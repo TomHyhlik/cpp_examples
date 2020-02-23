@@ -29,12 +29,13 @@ int main()
     // std::shared_ptr <Entity> e;
     // e = std::make_shared <Entity> ();
 
-    {   
-        auto eShared = std::shared_ptr <Entity> (new Entity());
-        eShared->val = 10;
-        printVal(eShared.get());
-    }
-    
+    std::unique_ptr <Entity> e;
+
+    e = std::unique_ptr <Entity> (new Entity());
+    e->val = 10;
+    printVal(e.get());
+
+    e = nullptr;
 
     std::cout << "AppEnd................." << std::endl;
     return 0;
