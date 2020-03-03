@@ -10,26 +10,6 @@ class StateMachine
 {
     StateFunc currentState;
 
-public:
-    StateMachine()
-    {
-        currentState = (StateFunc) state_01;   // starting state
-    }
-
-    void rxHandler(int *cmd) 
-    {
-        if (currentState != nullptr) {
-            bool success = false;
-            currentState = (StateFunc) currentState(cmd, &success);
-            if (!success) {
-                std::cout << "Failed to handle command: " <<  *cmd << "\n";
-                currentState = nullptr;
-            } 
-        } else {
-            std::cout << "Null state\n";
-        }
-    }
-
     //////////////////////////// DEFINED STATES
     static funcPtr state_04(int *cmd, bool *ok) 
     {
@@ -57,6 +37,26 @@ public:
             std::cout << "State \t01\tcmd: " << *cmd << "\n"; 
             *ok = true;
             return (funcPtr)state_02; 
+    }
+
+public:
+    StateMachine()
+    {
+        currentState = (StateFunc) state_01;   // starting state
+    }
+
+    void rxHandler(int *cmd) 
+    {
+        if (currentState != nullptr) {
+            bool success = false;
+            currentState = (StateFunc) currentState(cmd, &success);
+            if (!success) {
+                std::cout << "Failed to handle command: " <<  *cmd << "\n";
+                currentState = nullptr;
+            } 
+        } else {
+            std::cout << "Null state\n";
+        }
     }
 };
 
