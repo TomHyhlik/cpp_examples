@@ -2,38 +2,42 @@
 #include <string>
 
 
-typedef void (*fun2)();
-typedef fun2 (*fun1)(int *, bool *);
+typedef void (* fun2)();
+typedef fun2 (* StateFunc)(int *, bool *);
 
 //////////////////////////////////////////////////////
 class StateMachine 
 {
-    fun1 fp;
+    StateFunc fp;
 
 public:
     StateMachine()
     {
-        fp = (fun1) state_01;   // starting state
+        fp = (StateFunc) state_01;   // starting state
     }
 
     void start()
     {
-        for (int i = 0; i < 6; i++) {
-            rxHandler(&i);
+        for (int i = 0; i < 10; i++) {
+            if (!rxHandler(&i)) break;
         }
     }
-    void rxHandler(int *val) 
+    bool rxHandler(int *val) 
     {
-        bool success = false;
-
         if (fp != nullptr) {
-            fp = (fun1) fp(val, &success);
+            bool success = false;
+            fp = (StateFunc) fp(val, &success);
             if (!success) {
                 std::cout << "Failed to handle received command: " 
-                    <<  *val << "\n";
+                            <<  *val << "\n";
                 fp = nullptr;
-            }
+                return false;
+            } 
+        } else {
+            std::cout << "Null state, exitting...\n";
+            return false;
         }
+        return true;
     }
 
     //////////////////////////// DEFINED STATES
