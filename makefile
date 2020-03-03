@@ -2,7 +2,7 @@
 # $ make APP=<applicationName>
 
 CC = g++
-FLAGS = -std=c++17
+FLAGS = #-std=c++17
 
 BINARY = ./build/binary
 
