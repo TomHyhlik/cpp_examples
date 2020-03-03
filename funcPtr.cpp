@@ -2,71 +2,67 @@
 #include <string>
 
 
-typedef void (* fun2)();
-typedef fun2 (* StateFunc)(int *, bool *);
+typedef void (* funcPtr)();
+typedef funcPtr (* StateFunc)(int *, bool *);
 
 //////////////////////////////////////////////////////
 class StateMachine 
 {
-    StateFunc fp;
+    StateFunc currentState;
 
 public:
     StateMachine()
     {
-        fp = (StateFunc) state_01;   // starting state
+        currentState = (StateFunc) state_01;   // starting state
     }
 
     void start()
     {
-        for (int i = 0; i < 10; i++) {
-            if (!rxHandler(&i)) break;
-        }
+        for (int i = 0; i < 10; i++) rxHandler(&i);
     }
-    bool rxHandler(int *val) 
+
+    void rxHandler(int *val) 
     {
-        if (fp != nullptr) {
+        if (currentState != nullptr) {
             bool success = false;
-            fp = (StateFunc) fp(val, &success);
+            currentState = (StateFunc) currentState(val, &success);
             if (!success) {
                 std::cout << "Failed to handle received command: " 
                             <<  *val << "\n";
-                fp = nullptr;
-                return false;
+                currentState = nullptr;
             } 
         } else {
-            std::cout << "Null state, exitting...\n";
-            return false;
+            std::cout << "Null state\n";
         }
-        return true;
     }
 
     //////////////////////////// DEFINED STATES
-    static fun2 state_04(int *cmd, bool *ok) 
+    static funcPtr state_04(int *cmd, bool *ok) 
     {
             std::cout << "State \t04\tcmd: " << *cmd << "\n"; 
             *ok = true;
-            return (fun2)nullptr; 
+            return (funcPtr)nullptr; 
     }
 
-    static fun2 state_03(int *cmd, bool *ok) 
+    static funcPtr state_03(int *cmd, bool *ok) 
     {
             std::cout << "State \t03\tcmd: " << *cmd << "\n"; 
             *ok = true;
-            return (fun2)state_04; 
+            return (funcPtr)state_04; 
     }
 
-    static fun2 state_02(int *cmd, bool *ok) 
+    static funcPtr state_02(int *cmd, bool *ok) 
     {
             std::cout << "State \t02\tcmd: " << *cmd << "\n"; 
             *ok = true;
-            return (fun2)state_03; 
+            return (funcPtr)state_03; 
     }
 
-    static fun2 state_01(int *cmd, bool *ok) 
+    static funcPtr state_01(int *cmd, bool *ok) 
     {
             std::cout << "State \t01\tcmd: " << *cmd << "\n"; 
             *ok = true;
-            return (fun2)state_02; 
+            return (funcPtr)state_02; 
     }
 };
 
