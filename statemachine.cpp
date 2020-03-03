@@ -16,19 +16,13 @@ public:
         currentState = (StateFunc) state_01;   // starting state
     }
 
-    void start()
-    {
-        for (int i = 0; i < 10; i++) rxHandler(&i);
-    }
-
-    void rxHandler(int *val) 
+    void rxHandler(int *cmd) 
     {
         if (currentState != nullptr) {
             bool success = false;
-            currentState = (StateFunc) currentState(val, &success);
+            currentState = (StateFunc) currentState(cmd, &success);
             if (!success) {
-                std::cout << "Failed to handle received command: " 
-                            <<  *val << "\n";
+                std::cout << "Failed to handle command: " <<  *cmd << "\n";
                 currentState = nullptr;
             } 
         } else {
@@ -72,7 +66,10 @@ int main()
     std::cout << "AppStart..............." << std::endl;
 
     StateMachine sm;
-    sm.start();
+
+    /* simulate a few received commands */
+    for (int i = 0; i < 8; i++) 
+        sm.rxHandler(&i);
 
     std::cout << "AppEnd................." << std::endl;
     return 0;
