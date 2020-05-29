@@ -1,15 +1,15 @@
 # call it as:
-# $ make APP=<applicationName>
+# $ make app=<applicationName>
 
 CC = g++
-FLAGS = #-std=c++17
+FLAGS = -std=c++17
 
 BINARY = ./build/binary
 
 all: compile run
 
 compile:
-	$(CC) ./$(APP).cpp -o $(BINARY) $(FLAGS)
+	$(CC) ./$(app).cpp -o $(BINARY) $(FLAGS)
 
 run:
 	$(BINARY)
