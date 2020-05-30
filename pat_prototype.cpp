@@ -97,7 +97,7 @@ enum RecordType
 	BIKE,
 	PERSON
 };
-
+////////////////////////////////////////////////////////
 /** RecordFactory is the client */
 class RecordFactory
 {
