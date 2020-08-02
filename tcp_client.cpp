@@ -4,49 +4,108 @@
 #include <arpa/inet.h> 
 #include <unistd.h> 
 
+#define SERVER_PORT     1111
+#define SERVER_ADDR     "127.0.0.1"
 
-#define SERVER_PORT     11999 
-#define SERVER_ADDR     "192.168.200.51"
+/////////////////////////////////////////////////////////
+class NetworkWorker
+{    
+    int sock; 
 
-   
+    std::string lastIpAddr;
+    int lastPort;
+
+public:
+    bool connectToServer(std::string ipAddr, int port) 
+    { 
+        lastIpAddr = ipAddr;
+        lastPort = port;
+
+        if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) 
+        { 
+            std::cout << "ERROR: Socket creation error \n"; 
+            return false; 
+        } 
+
+        struct sockaddr_in serv_addr; 
+        serv_addr.sin_family = AF_INET; 
+        serv_addr.sin_port = htons(port); 
+        
+        // Convert IPv4 and IPv6 addresses from text to binary form 
+        if(inet_pton(AF_INET, ipAddr.c_str(), &serv_addr.sin_addr)<=0)  
+        { 
+            std::cout << "ERROR: Invalid Network IP Address " << 
+                ipAddr << "\n"; 
+            return false; 
+        } 
+    
+        return (connect(sock, (struct sockaddr *)&serv_addr, 
+            sizeof(serv_addr)) != -1);
+    }
+
+    bool connectToServer()
+    {
+        return connectToServer(lastIpAddr, lastPort);
+    }
+
+    bool transmit(const std::string data)
+    {
+        if (!isConnectedToServer()) 
+            if (!connectToServer())
+                return false;
+        send(sock, data.c_str() , data.size(), 0);  
+        return true;
+    } 
+
+    bool isConnectedToServer()
+    {
+        char buf[256];
+        return (recv(sock, &buf, 1, MSG_PEEK | MSG_DONTWAIT) != 0);
+    }
+};
+
+/////////////////////////////////////////////////////////
 int main(int argc, char const *argv[]) 
 { 
-    int sock = 0; 
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) 
-    { 
-        std::cout << "ERROR: Socket creation error \n"; 
-        return -1; 
-    } 
 
-    struct sockaddr_in serv_addr; 
-    serv_addr.sin_family = AF_INET; 
-    serv_addr.sin_port = htons(SERVER_PORT); 
-       
-    // Convert IPv4 and IPv6 addresses from text to binary form 
-    if(inet_pton(AF_INET, SERVER_ADDR, &serv_addr.sin_addr)<=0)  
-    { 
-        std::cout << "ERROR: Invalid address\n"; 
-        return -1; 
-    } 
-   
-    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) 
-    { 
-        std::cout << "Connection Failed \n"; 
-        return -1; 
+    NetworkWorker network;
+    while (!network.connectToServer(SERVER_ADDR, SERVER_PORT)) {
+        std::cout << "ERROR: Failed to connect to server\n";
+        sleep(2);
     }
+    std::cout << "Connected to server: " << 
+        SERVER_ADDR << " : " << SERVER_PORT << "\n";
 
-    while (1)
+    for (int i = 0; ; i++)
     {
-        std::string inputData;
-        std::cin >> inputData;
-
-        send(sock, inputData.c_str() , inputData.size() , 0); 
+        std::string message = "Message_" + std::to_string(i);
+        if (network.transmit(message)) {
+            std::cout << "Network transmit: " << message << "\n";
+        } else {
+            std::cout << "Can't transmit, server not connected\n";
+        }
+        sleep(1);
     }
 
-    /* wait for reply from server */
-    char buffer[1024] = {0}; 
-    int valread = read( sock , buffer, 1024); 
-    std::cout << buffer << "\n"; 
+    /* transmit keyboard input to server */
+    // while (1)
+    // {
+    //     std::string inputData;
+    //     std::cin >> inputData;
+
+    //     int error_code;
+    //     int error_code_size = sizeof(error_code);
+
+    //     char buf[256];
+    //     network.transmit(inputData); 
+    // }
+
+    // /* wait for reply from server */
+    // char buffer[1024] = {0}; 
+    // int valread = read( sock , buffer, 1024); 
+    // std::cout << buffer << "\n"; 
 
     return 0; 
 } 
+
+/////////////////////////////////////////////////////////
