@@ -4,11 +4,11 @@
 #include <arpa/inet.h> 
 #include <unistd.h> 
 
-#define SERVER_PORT     1111
-#define SERVER_ADDR     "127.0.0.1"
+#define SERVER_PORT     11999
+#define SERVER_ADDR     "192.168.200.51"
 
 /////////////////////////////////////////////////////////
-class NetworkWorker
+class TcpClient
 {    
     int sock; 
 
@@ -59,8 +59,7 @@ public:
 
     bool isConnectedToServer()
     {
-        char buf[256];
-        return (recv(sock, &buf, 1, MSG_PEEK | MSG_DONTWAIT) != 0);
+        return (recv(sock, nullptr, 0, MSG_PEEK | MSG_DONTWAIT) > 0);
     }
 };
 
@@ -68,8 +67,8 @@ public:
 int main(int argc, char const *argv[]) 
 { 
 
-    NetworkWorker network;
-    while (!network.connectToServer(SERVER_ADDR, SERVER_PORT)) {
+    TcpClient client;
+    while (!client.connectToServer(SERVER_ADDR, SERVER_PORT)) {
         std::cout << "ERROR: Failed to connect to server\n";
         sleep(2);
     }
@@ -79,7 +78,7 @@ int main(int argc, char const *argv[])
     for (int i = 0; ; i++)
     {
         std::string message = "Message_" + std::to_string(i);
-        if (network.transmit(message)) {
+        if (client.transmit(message)) {
             std::cout << "Network transmit: " << message << "\n";
         } else {
             std::cout << "Can't transmit, server not connected\n";
@@ -97,7 +96,7 @@ int main(int argc, char const *argv[])
     //     int error_code_size = sizeof(error_code);
 
     //     char buf[256];
-    //     network.transmit(inputData); 
+    //     client.transmit(inputData); 
     // }
 
     // /* wait for reply from server */
