@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <memory>
 
 //////////////////////////////////////////////////////
 class Entity 
@@ -14,28 +15,36 @@ public:
     int val;
 };
 
-void printVal(Entity *e) 
+class nevim
 {
-    std::cout << "Entity value: " << e->val << std::endl;
-}
+    // std::unique_ptr <Entity> e;
+    Entity e;
+
+public:
+    nevim() 
+    {
+        // e = std::make_unique <Entity> ();
+    
+    };
+
+
+};
 
 //////////////////////////////////////////////////////
 int main()
 {
     std::cout << "AppStart..............." << std::endl;
 
-    // std::unique_ptr <Entity> e = std::unique_ptr <Entity> (new Entity());
-    // std::shared_ptr <Entity> e(new Entity());
-    // std::shared_ptr <Entity> e;
-    // e = std::make_shared <Entity> ();
 
-    std::unique_ptr <Entity> e;
+    {
+        nevim n;
 
-    e = std::unique_ptr <Entity> (new Entity());
-    e->val = 10;
-    printVal(e.get());
 
-    e = nullptr;
+
+    }
+
+
+
 
     std::cout << "AppEnd................." << std::endl;
     return 0;

@@ -4,7 +4,7 @@
 #include <arpa/inet.h> 
 #include <unistd.h> 
 
-#define SERVER_PORT     11999
+#define SERVER_PORT     11997
 #define SERVER_ADDR     "192.168.200.51"
 // #define SERVER_ADDR     "127.0.0.1"
 
@@ -15,8 +15,14 @@ class TcpClient
 
     std::string lastIpAddr;
     int lastPort;
+    struct sockaddr_in serv_addr; 
 
 public:
+    TcpClient()
+    {
+
+    }
+
     bool connectToServer(std::string ipAddr, int port) 
     { 
         lastIpAddr = ipAddr;
@@ -28,7 +34,6 @@ public:
             return false; 
         } 
 
-        struct sockaddr_in serv_addr; 
         serv_addr.sin_family = AF_INET; 
         serv_addr.sin_port = htons(port); 
         
@@ -58,17 +63,19 @@ public:
         return true;
     } 
 
-    bool isConnectedToServer()
+    bool isConnectedToServer() // MSG_DONTWAIT
     {
-        return (recv(sock, nullptr, 0, MSG_PEEK | MSG_DONTWAIT) > 0);
+        return (recv(sock, nullptr, 0, MSG_DONTWAIT | MSG_ERRQUEUE) > 0);
     }
 };
 
 /////////////////////////////////////////////////////////
 int main(int argc, char const *argv[]) 
 { 
+    std::cout << "AppStart...................................\n";
 
     TcpClient client;
+
     while (!client.connectToServer(SERVER_ADDR, SERVER_PORT)) {
         std::cout << "Failed to connect to server" <<
                 SERVER_ADDR << " : " << SERVER_PORT << "\n";

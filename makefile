@@ -1,6 +1,10 @@
 # call it as:
 # $ make app=<applicationName>
 
+
+# app = tcp_server
+app = tcp_client
+
 CC = g++
 FLAGS = -std=c++17
 
