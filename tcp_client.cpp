@@ -4,7 +4,7 @@
 #include <arpa/inet.h> 
 #include <unistd.h> 
 
-#define SERVER_PORT     11997
+#define SERVER_PORT     11994
 #define SERVER_ADDR     "192.168.200.51"
 // #define SERVER_ADDR     "127.0.0.1"
 
@@ -17,10 +17,11 @@ class TcpClient
     int lastPort;
     struct sockaddr_in serv_addr; 
 
+    bool status_connected;
+
 public:
     TcpClient()
     {
-
     }
 
     bool connectToServer(std::string ipAddr, int port) 
@@ -43,10 +44,18 @@ public:
             std::cout << "ERROR: Invalid Network IP Address " << 
                 ipAddr << "\n"; 
             return false; 
-        } 
+        }
     
-        return (connect(sock, (struct sockaddr *)&serv_addr, 
-            sizeof(serv_addr)) != -1);
+        if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) != -1) {
+            std::cout << "Connected to server: " << 
+                SERVER_ADDR << " : " << SERVER_PORT << "\n";
+            status_connected = true;
+            return true;
+        } else {
+            std::cout << "Failed to connect to server: " << 
+                SERVER_ADDR << " : " << SERVER_PORT << "\n";
+            return false;
+        }
     }
 
     bool connectToServer()
@@ -65,7 +74,16 @@ public:
 
     bool isConnectedToServer() // MSG_DONTWAIT
     {
-        return (recv(sock, nullptr, 0, MSG_DONTWAIT | MSG_ERRQUEUE) > 0);
+        if (status_connected) {
+            int val = recv(sock, nullptr, 0, MSG_DONTWAIT);
+            if (val != 0) {
+                return true;
+            } else {
+                close(sock);
+                status_connected = false;
+            }
+        }
+        return false;
     }
 };
 
@@ -76,13 +94,7 @@ int main(int argc, char const *argv[])
 
     TcpClient client;
 
-    while (!client.connectToServer(SERVER_ADDR, SERVER_PORT)) {
-        std::cout << "Failed to connect to server" <<
-                SERVER_ADDR << " : " << SERVER_PORT << "\n";
-        sleep(1);
-    }
-    std::cout << "Connected to server: " << 
-        SERVER_ADDR << " : " << SERVER_PORT << "\n";
+    while (!client.connectToServer(SERVER_ADDR, SERVER_PORT)) sleep(1);
 
     for (int i = 0; ; i++)
     {
