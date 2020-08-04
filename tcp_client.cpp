@@ -6,6 +6,7 @@
 
 #define SERVER_PORT     11999
 #define SERVER_ADDR     "192.168.200.51"
+// #define SERVER_ADDR     "127.0.0.1"
 
 /////////////////////////////////////////////////////////
 class TcpClient
@@ -69,8 +70,9 @@ int main(int argc, char const *argv[])
 
     TcpClient client;
     while (!client.connectToServer(SERVER_ADDR, SERVER_PORT)) {
-        std::cout << "ERROR: Failed to connect to server\n";
-        sleep(2);
+        std::cout << "Failed to connect to server" <<
+                SERVER_ADDR << " : " << SERVER_PORT << "\n";
+        sleep(1);
     }
     std::cout << "Connected to server: " << 
         SERVER_ADDR << " : " << SERVER_PORT << "\n";
